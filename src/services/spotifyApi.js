@@ -13,32 +13,42 @@ export const getSpotifyToken = async () => {
     });
     const data = await response.json();
     return data.access_token;
-  } catch (error) { return null; }
+  } catch (error) {
+    console.error("Error obteniendo token:", error);
+    return null;
+  }
 };
 
 export const searchArtist = async (token, query) => {
   try {
-    // URL OFICIAL DE SPOTIFY
-    const res = await fetch(`https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=1`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+    // 1. Buscamos al artista (Ruta corregida sin números extra)
+    const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=1`;
+    const res = await fetch(searchUrl, { 
+      headers: { 'Authorization': `Bearer ${token}` } 
     });
     const data = await res.json();
     
-    if (!data.artists?.items.length) return null;
+    if (!data.artists?.items || data.artists.items.length === 0) return null;
     const artist = data.artists.items[0];
 
-    // URL OFICIAL DE TOP TRACKS
-    const tracksRes = await fetch(`https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=MX`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+    // 2. Traemos los Top Tracks reales usando el ID obtenido
+    const tracksUrl = `https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=MX`;
+    const tracksRes = await fetch(tracksUrl, { 
+      headers: { 'Authorization': `Bearer ${token}` } 
     });
     const tracksData = await tracksRes.json();
 
-    const topTracks = (tracksData.tracks || []).slice(0, 10).map(t => ({
-      id: t.id,
-      name: t.name,
-      duration_ms: t.duration_ms
+    // Limpiamos los tracks para la interfaz
+    const topTracks = (tracksData.tracks || []).slice(0, 10).map(track => ({
+      id: track.id,
+      name: track.name,
+      duration_ms: track.duration_ms,
+      popularity: track.popularity
     }));
 
     return { ...artist, topTracks };
-  } catch (error) { return null; }
+  } catch (error) {
+    console.error("Error en el flujo de Spotify:", error);
+    return null;
+  }
 };
