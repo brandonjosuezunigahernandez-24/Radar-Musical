@@ -66,12 +66,13 @@ function App() {
       return;
     }
     const data = await resp.json();
+    console.log('[App] spotify proxy response', data);
     if (!data.artist) return;
 
     const locationData = await getRealArtistLocation(data.artist.name);
     setArtista({
       ...data.artist,
-      topTracks: data.topTracks.slice(0, 10),
+      topTracks: (data.topTracks || []).slice(0, 10),
       coords: locationData.coords,
       city: locationData.city,
     });
@@ -223,14 +224,19 @@ function App() {
 
         {/* LISTA DE FAVORITOS */}
         {favoritos && (
-          <section className="favoritos-section">
-            <h3>Favoritos</h3>
-            {favoritos.map((favorito) => (
-              <div key={favorito.id} className="favorito-item">
-                <img src={favorito.imagen} alt={favorito.nombre} />
-                <span>{favorito.nombre}</span>
-              </div>
-            ))}
+          <section className="favorites-carousel">
+            <h3 style={{padding: '0 0 10px 60px'}}>Favoritos</h3>
+            <div className="carousel-grid">
+              {favoritos.map((favorito) => (
+                <div key={favorito.id} className="fav-card">
+                  <img src={favorito.imagen} alt={favorito.nombre} />
+                  <p className="fav-tag">{favorito.nombre}</p>
+                  <button className="del-btn" onClick={() => eliminarFavorito(favorito.id)}>
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </section>
         )}
       </main>
