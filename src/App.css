@@ -166,6 +166,9 @@
 /* --- FAVORITOS --- */
 .favorites-carousel {
   padding-top: 40px; /* add space above title */
+  padding: 20px 60px 60px;
+  max-width: 1400px;
+  margin: 0 auto;
 }
 
 .favorites-title {
@@ -177,10 +180,6 @@
 }
 
 .fav-name { font-weight: bold; font-size: 0.95rem; margin: 0; }
-  padding: 20px 60px 60px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
 
 .carousel-grid {
   display: grid;
