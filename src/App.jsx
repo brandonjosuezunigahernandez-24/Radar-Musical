@@ -11,6 +11,7 @@ function App() {
   const [busqueda, setBusqueda] = useState('')
   const [artista, setArtista] = useState(null)
   const [favoritos, setFavoritos] = useState([])
+  const [errorMsg, setErrorMsg] = useState(null); // show messages when search fails
 
   // Este Hook revisa si el usuario ya está logueado al cargar la página
   useEffect(() => {
@@ -58,17 +59,23 @@ function App() {
 
   const manejarBusqueda = async (e) => {
     e.preventDefault();
+    setErrorMsg(null);
 
     // llamamos a nuestro servidor Vercel en lugar de Spotify directo
     const resp = await fetch(`/api/spotify?q=${encodeURIComponent(busqueda)}`);
     if (!resp.ok) {
       console.error('error proxy spotify', resp.status);
+      setErrorMsg('No se pudo conectar con Spotify. Intenta más tarde.');
       return;
     }
     const data = await resp.json();
     console.log('[App] spotify proxy response', data);
     console.log('[App] followers', data.artist?.followers);
-    if (!data.artist) return;
+
+    if (!data.artist) {
+      setErrorMsg('Artista no encontrado');
+      return;
+    }
 
     const locationData = await getRealArtistLocation(data.artist.name);
     setArtista({
@@ -178,7 +185,8 @@ function App() {
       </header>
 
       <main className="content-grid">
-        {artista && (
+        {errorMsg && <p className="error">{errorMsg}</p>}
+      {artista && (
           <>
             {/* COLUMNA IZQUIERDA: Artista y Canciones */}
             <section className="artist-details">
@@ -195,16 +203,20 @@ function App() {
 
               <div className="tracks-container">
                 <h3>CANCIONES PRINCIPALES</h3>
-                {artista.topTracks?.map((track, index) => (
-                  <div key={track.id} className="track-row">
-                    <span className="track-index">{index + 1}</span>
-                    <button className="play-btn">▶</button>
-                    <div className="track-info">
-                      <span className="track-name">{track.name}</span>
-                      <span className="track-plays">{(Math.random() * 10).toFixed(1)}M reproducciones</span>
+                {artista.topTracks && artista.topTracks.length > 0 ? (
+                  artista.topTracks.map((track, index) => (
+                    <div key={track.id} className="track-row">
+                      <span className="track-index">{index + 1}</span>
+                      <button className="play-btn">▶</button>
+                      <div className="track-info">
+                        <span className="track-name">{track.name}</span>
+                        <span className="track-plays">{(Math.random() * 10).toFixed(1)}M reproducciones</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="no-tracks">No hay canciones disponibles</p>
+                )}
                 <button className="save-favorite-btn" onClick={guardarFavorito}>
                   ♡ Guardar en Favoritos
                 </button>

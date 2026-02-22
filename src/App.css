@@ -181,6 +181,18 @@
 
 .fav-name { font-weight: bold; font-size: 0.95rem; margin: 0; }
 
+.error {
+  color: #c00;
+  padding: 10px 60px;
+  text-align: center;
+}
+
+.no-tracks {
+  font-style: italic;
+  color: #666;
+  padding: 10px 0;
+}
+
 .carousel-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
