@@ -13,36 +13,37 @@ export const getSpotifyToken = async () => {
     });
     const data = await response.json();
     return data.access_token;
-  } catch (error) { return null; }
+  } catch (error) { 
+    console.error("Error obteniendo token:", error);
+    return null; 
+  }
 };
 
 export const searchArtist = async (token, query) => {
   try {
-    // 1. Buscamos al artista
+    // 1. Buscamos al artista - URL corregida
     const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=1`;
     const res = await fetch(searchUrl, { 
       headers: { 'Authorization': `Bearer ${token}` } 
     });
     const data = await res.json();
     
-    if (!data.artists?.items.length) return null;
+    if (!data.artists?.items || data.artists.items.length === 0) return null;
     const artist = data.artists.items[0];
 
-    // 2. PETICIÓN REAL: Traemos los Top Tracks del artista (usando su ID)
-    // El market 'US' o 'MX' es para asegurar que las canciones estén disponibles aquí
+    // 2. Traemos los Top Tracks reales
     const tracksUrl = `https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=MX`;
     const tracksRes = await fetch(tracksUrl, { 
       headers: { 'Authorization': `Bearer ${token}` } 
     });
     const tracksData = await tracksRes.json();
 
-    // Mapeamos solo lo que necesitamos para que tu App.jsx no truene
-    const topTracks = tracksData.tracks.slice(0, 10).map(track => ({
+    // Verificamos que 'tracks' exista antes de hacerle .slice()
+    const topTracks = (tracksData.tracks || []).slice(0, 10).map(track => ({
       id: track.id,
       name: track.name,
       duration_ms: track.duration_ms,
-      popularity: track.popularity, // Dato extra por si lo quieres usar
-      preview_url: track.preview_url // ¡Incluso podrías poner un reproductor después!
+      popularity: track.popularity
     }));
 
     return { ...artist, topTracks };
