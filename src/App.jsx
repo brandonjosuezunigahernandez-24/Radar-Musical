@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabaseClient'
-import { getSpotifyToken, searchArtist } from './services/spotifyApi'
+// spotify is now proxied through a serverless endpoint on Vercel
+// import { getSpotifyToken, searchArtist } from './services/spotifyApi'
 import { getRealArtistLocation } from './services/geoService'
 import MapWidget from './components/MapWidget'
 import './App.css'
@@ -57,31 +58,23 @@ function App() {
 
   const manejarBusqueda = async (e) => {
     e.preventDefault();
-    let token = await getSpotifyToken();
-    console.log('[App] fetched spotify token', token);
 
-    if (token) {
-      const infoSpotify = await searchArtist(token, busqueda);
-      if (!infoSpotify) {
-        console.error('[App] searchArtist failed or returned null');
-        return;
-      }
-
-      // si la función devolvió un token refrescado, actualizamos la variable local
-      if (infoSpotify._spotifyToken && infoSpotify._spotifyToken !== token) {
-        token = infoSpotify._spotifyToken;
-        console.log('[App] token was refreshed during search');
-      }
-
-      // Obtenemos el objeto con coords y city
-      const locationData = await getRealArtistLocation(infoSpotify.name);
-      
-      setArtista({
-        ...infoSpotify,
-        coords: locationData.coords,
-        city: locationData.city // <--- IMPORTANTE
-      });
+    // llamamos a nuestro servidor Vercel en lugar de Spotify directo
+    const resp = await fetch(`/api/spotify?q=${encodeURIComponent(busqueda)}`);
+    if (!resp.ok) {
+      console.error('error proxy spotify', resp.status);
+      return;
     }
+    const data = await resp.json();
+    if (!data.artist) return;
+
+    const locationData = await getRealArtistLocation(data.artist.name);
+    setArtista({
+      ...data.artist,
+      topTracks: data.topTracks.slice(0, 10),
+      coords: locationData.coords,
+      city: locationData.city,
+    });
   }
 
   const guardarFavorito = async () => {
@@ -223,28 +216,24 @@ function App() {
                    {artista.coords ? `Lat: ${artista.coords[0]?.toFixed(4)} • Lon: ${artista.coords[1]?.toFixed(4)}` : "Cargando coordenadas..."}
                  </span>
               </div>
-              <MapWidget coords={artista.coords} nombreArtista={artista.name} />
+              <MapWidget lat={artista.coords[0]} lng={artista.coords[1]} />
             </section>
           </>
         )}
+
+        {/* LISTA DE FAVORITOS */}
+        {favoritos && (
+          <section className="favoritos-section">
+            <h3>Favoritos</h3>
+            {favoritos.map((favorito) => (
+              <div key={favorito.id} className="favorito-item">
+                <img src={favorito.imagen} alt={favorito.nombre} />
+                <span>{favorito.nombre}</span>
+              </div>
+            ))}
+          </section>
+        )}
       </main>
-
-      {/* SECCIÓN INFERIOR: Carrusel de Favoritos */}
-      <footer className="favorites-carousel">
-        <h3>ARTISTAS GUARDADOS RECIENTEMENTE</h3>
-        <div className="carousel-grid">
-          {favoritos.map(fav => (
-            <div key={fav.id} className="fav-card">
-              <img src={fav.imagen} alt={fav.nombre} />
-              <div className="fav-tag">HIP HOP</div>
-              <p>{fav.nombre}</p>
-              <button className="del-btn" onClick={() => eliminarFavorito(fav.id)}>×</button>
-            </div>
-          ))}
-        </div>
-      </footer>
     </div>
-);
+  )
 }
-
-export default App
