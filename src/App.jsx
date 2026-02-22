@@ -57,20 +57,30 @@ function App() {
 
   const manejarBusqueda = async (e) => {
     e.preventDefault();
-    const token = await getSpotifyToken();
-    
+    let token = await getSpotifyToken();
+    console.log('[App] fetched spotify token', token);
+
     if (token) {
       const infoSpotify = await searchArtist(token, busqueda);
-      if (infoSpotify) {
-        // Obtenemos el objeto con coords y city
-        const locationData = await getRealArtistLocation(infoSpotify.name);
-        
-        setArtista({
-          ...infoSpotify,
-          coords: locationData.coords,
-          city: locationData.city // <--- IMPORTANTE
-        });
+      if (!infoSpotify) {
+        console.error('[App] searchArtist failed or returned null');
+        return;
       }
+
+      // si la función devolvió un token refrescado, actualizamos la variable local
+      if (infoSpotify._spotifyToken && infoSpotify._spotifyToken !== token) {
+        token = infoSpotify._spotifyToken;
+        console.log('[App] token was refreshed during search');
+      }
+
+      // Obtenemos el objeto con coords y city
+      const locationData = await getRealArtistLocation(infoSpotify.name);
+      
+      setArtista({
+        ...infoSpotify,
+        coords: locationData.coords,
+        city: locationData.city // <--- IMPORTANTE
+      });
     }
   }
 
