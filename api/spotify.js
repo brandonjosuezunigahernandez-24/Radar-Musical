@@ -41,13 +41,23 @@ export default async function handler(req, res) {
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const searchData = await search.json();
-    const artist = searchData.artists?.items?.[0];
-    if (!artist) return res.status(404).end();
+    console.log('[api/spotify] searchData', searchData);
+    const found = searchData.artists?.items?.[0];
+    if (!found) return res.status(404).end();
+
+    // get full artist details (includes follower count, genres, etc.)
+    const detailResp = await fetch(`https://api.spotify.com/v1/artists/${found.id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const artistDetails = await detailResp.json();
+    if (!detailResp.ok) {
+      console.warn('[api/spotify] artist detail fetch failed', detailResp.status, artistDetails);
+    }
 
     // Spotify requires a market parameter; US is a safe default since MX caused
     // 403 responses from some client‑credentials tokens when called directly.
     const tracks = await fetch(
-      `https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=US`,
+      `https://api.spotify.com/v1/artists/${found.id}/top-tracks?market=US`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const tracksData = await tracks.json();
@@ -55,7 +65,7 @@ export default async function handler(req, res) {
       console.error('[api/spotify] top-tracks error', tracks.status, tracksData);
     }
 
-    res.json({ artist, topTracks: tracksData.tracks || [] });
+    res.json({ artist: artistDetails, topTracks: tracksData.tracks || [] });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'spotify error' });

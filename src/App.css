@@ -112,6 +112,7 @@
 }
 
 .banner-overlay h1 { margin: 0; font-size: 2.5rem; }
+.banner-overlay .followers { margin-top: 8px; font-size: 1rem; color: #d1d1d1; }
 
 .tracks-container { padding: 30px; }
 .tracks-container h3 { font-size: 0.9rem; color: #65676b; letter-spacing: 1px; }
@@ -164,6 +165,18 @@
 
 /* --- FAVORITOS --- */
 .favorites-carousel {
+  padding-top: 40px; /* add space above title */
+}
+
+.favorites-title {
+  margin-left: 60px;
+  font-size: 1rem;
+  color: var(--text-main);
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+}
+
+.fav-name { font-weight: bold; font-size: 0.95rem; margin: 0; }
   padding: 20px 60px 60px;
   max-width: 1400px;
   margin: 0 auto;

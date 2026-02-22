@@ -67,6 +67,7 @@ function App() {
     }
     const data = await resp.json();
     console.log('[App] spotify proxy response', data);
+    console.log('[App] followers', data.artist?.followers);
     if (!data.artist) return;
 
     const locationData = await getRealArtistLocation(data.artist.name);
@@ -184,7 +185,11 @@ function App() {
               <div className="artist-banner" style={{ backgroundImage: `url(${artista.images[0]?.url})` }}>
                 <div className="banner-overlay">
                   <h1>{artista.name}</h1>
-                  <p>{artista.followers?.total?.toLocaleString() || 0} oyentes mensuales</p>
+                  <p className="followers">
+                    {artista.followers && artista.followers.total != null
+                      ? `${artista.followers.total.toLocaleString()} oyentes mensuales`
+                      : 'Oyentes desconocidos'}
+                  </p>
                 </div>
               </div>
 
@@ -225,12 +230,13 @@ function App() {
         {/* LISTA DE FAVORITOS */}
         {favoritos && (
           <section className="favorites-carousel">
-            <h3 style={{padding: '0 0 10px 60px'}}>Favoritos</h3>
+            <h3 className="favorites-title">ARTISTAS GUARDADOS RECIENTEMENTE</h3>
             <div className="carousel-grid">
               {favoritos.map((favorito) => (
                 <div key={favorito.id} className="fav-card">
                   <img src={favorito.imagen} alt={favorito.nombre} />
-                  <p className="fav-tag">{favorito.nombre}</p>
+                  <p className="fav-tag">{favorito.genero || favorito.nombre}</p>
+                  <p className="fav-name">{favorito.nombre}</p>
                   <button className="del-btn" onClick={() => eliminarFavorito(favorito.id)}>
                     ×
                   </button>
