@@ -1,0 +1,195 @@
+/* App.css - Versión Final Mockup */
+:root {
+  --bg-color: #f0f2f5;
+  --primary-blue: #0b1521;
+  --accent-blue: #1a73e8;
+  --text-main: #1c1e21;
+  --card-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; }
+
+.app-container {
+  background-color: var(--bg-color);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: var(--text-main);
+}
+
+/* --- HEADER --- */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 60px;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0; z-index: 1000;
+}
+
+.logo {
+  font-weight: 800;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo::before {
+  content: 'R';
+  background: var(--primary-blue);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 4px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 0;
+  background: #f0f2f5;
+  border-radius: 25px;
+  padding: 2px 5px;
+  border: 1px solid #ddd;
+}
+
+.search-bar input {
+  width: 450px;
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  outline: none;
+}
+
+.search-bar button {
+  background: transparent;
+  border: none;
+  padding: 0 15px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #666;
+}
+
+.user-profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #eee;
+}
+
+/* --- GRID PRINCIPAL --- */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 25px;
+  padding: 30px 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* --- DETALLES DEL ARTISTA --- */
+.artist-details {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+}
+
+.artist-banner {
+  height: 280px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.banner-overlay {
+  position: absolute;
+  bottom: 0; width: 100%;
+  padding: 40px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.9));
+  color: white;
+}
+
+.banner-overlay h1 { margin: 0; font-size: 2.5rem; }
+
+.tracks-container { padding: 30px; }
+.tracks-container h3 { font-size: 0.9rem; color: #65676b; letter-spacing: 1px; }
+
+.track-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 10px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.track-row:hover { background: #f8f9fa; }
+
+.track-index { width: 30px; color: #bcc0c4; font-weight: bold; }
+.play-btn { background: transparent; border: none; cursor: pointer; margin-right: 15px; color: #1a73e8; }
+
+.track-info { display: flex; flex-direction: column; flex-grow: 1; }
+.track-name { font-weight: 600; font-size: 1rem; }
+.track-plays { font-size: 0.8rem; color: #65676b; }
+
+.save-favorite-btn {
+  width: 100%;
+  margin-top: 25px;
+  padding: 16px;
+  background: var(--primary-blue);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+/* --- MAPA --- */
+.map-section {
+  background: white;
+  padding: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.map-info-header { padding: 25px; border-bottom: 1px solid #eee; }
+.map-info-header p { font-size: 0.7rem; font-weight: bold; color: #65676b; margin: 0; }
+.map-info-header h4 { margin: 8px 0; font-size: 1.1rem; }
+.map-info-header span { font-size: 0.85rem; color: #8a8d91; }
+
+/* --- FAVORITOS --- */
+.favorites-carousel {
+  padding: 20px 60px 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.carousel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 20px;
+}
+
+.fav-card {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  position: relative;
+}
+
+.fav-card img { width: 100%; border-radius: 8px; aspect-ratio: 1/1; object-fit: cover; }
+.fav-tag { font-size: 0.65rem; font-weight: bold; color: #1a73e8; margin: 10px 0 5px; }
+.fav-card p { font-weight: bold; font-size: 0.95rem; margin: 0; }
+
+.del-btn {
+  position: absolute; top: 20px; right: 20px;
+  background: rgba(0,0,0,0.5); color: white;
+  border: none; border-radius: 50%; width: 24px; height: 24px;
+  cursor: pointer;
+}
