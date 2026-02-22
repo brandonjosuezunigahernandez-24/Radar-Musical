@@ -21,7 +21,7 @@ export const getSpotifyToken = async () => {
 
 export const searchArtist = async (token, query) => {
   try {
-    // 1. Buscamos al artista - URL oficial de búsqueda
+    // 1. Buscamos al artista - Fíjate en el $ antes de {encodeURIComponent...}
     const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=1`;
     const res = await fetch(searchUrl, { 
       headers: { 'Authorization': `Bearer ${token}` } 
@@ -31,7 +31,7 @@ export const searchArtist = async (token, query) => {
     if (!data.artists?.items || data.artists.items.length === 0) return null;
     const artist = data.artists.items[0];
 
-    // 2. Traemos los Top Tracks - URL oficial de tracks
+    // 2. Traemos los Top Tracks - Fíjate en el $ antes de {artist.id}
     const tracksUrl = `https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=MX`;
     const tracksRes = await fetch(tracksUrl, { 
       headers: { 'Authorization': `Bearer ${token}` } 
