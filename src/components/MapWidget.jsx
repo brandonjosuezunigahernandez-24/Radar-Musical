@@ -3,10 +3,25 @@ import { useEffect } from 'react'
 import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 
+// --- SOLUCIÓN PARA EL ERROR 404 DE ICONOS ---
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow,
+    iconSize: [25, 41],
+    iconAnchor: [12, 41]
+});
+L.Marker.prototype.options.icon = DefaultIcon;
+// --------------------------------------------
+
 function FlyToLocation({ center }) {
   const map = useMap();
   useEffect(() => {
-    if (center) map.flyTo(center, 12, { animate: true, duration: 2.5 });
+    if (center && center[0] && center[1]) {
+        map.flyTo(center, 12, { animate: true, duration: 2 });
+    }
   }, [center, map]);
   return null;
 }
@@ -20,7 +35,7 @@ const MapWidget = ({ nombreArtista, coords }) => {
         <FlyToLocation center={posicion} />
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
         <Marker position={posicion}>
-          <Popup><strong>{nombreArtista}</strong><br/>Ubicación Real</Popup>
+          <Popup>{nombreArtista}</Popup>
         </Marker>
       </MapContainer>
     </div>

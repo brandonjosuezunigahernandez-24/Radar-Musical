@@ -210,7 +210,7 @@ function App() {
                  <h4>{artista.city || "Ubicación no detectada"}</h4>
                  {/* Mostramos las coordenadas reales con 4 decimales */}
                  <span>
-                   Lat: {artista.coords[0].toFixed(4)} • Lon: {artista.coords[1].toFixed(4)}
+                   {artista.coords ? `Lat: ${artista.coords[0]?.toFixed(4)} • Lon: ${artista.coords[1]?.toFixed(4)}` : "Cargando coordenadas..."}
                  </span>
               </div>
               <MapWidget coords={artista.coords} nombreArtista={artista.name} />
