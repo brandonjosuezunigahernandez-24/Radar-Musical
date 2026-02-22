@@ -18,34 +18,36 @@ export const getSpotifyToken = async () => {
 
 export const searchArtist = async (token, query) => {
   try {
-    const searchUrl = `https://api.spotify.com/v1/search?q=$${encodeURIComponent(query)}&type=artist&limit=1`;
-    const res = await fetch(searchUrl, { headers: { 'Authorization': `Bearer ${token}` } });
+    // 1. Buscamos al artista
+    const searchUrl = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=artist&limit=1`;
+    const res = await fetch(searchUrl, { 
+      headers: { 'Authorization': `Bearer ${token}` } 
+    });
     const data = await res.json();
     
     if (!data.artists?.items.length) return null;
     const artist = data.artists.items[0];
 
-    // CANCIONES REALES (Mocked para evitar errores de CORS en el examen)
-    const hits = {
-      'Joji': [
-        { id: '1', name: 'Glimpse of Us', duration_ms: 233000 },
-        { id: '2', name: 'Slow Dancing in the Dark', duration_ms: 209000 },
-        { id: '3', name: 'Die For You', duration_ms: 211000 }
-      ],
-      'Fuerza Regida': [
-        { id: '4', name: 'Harley Quinn', duration_ms: 181000 },
-        { id: '5', name: 'Sabor Fresa', duration_ms: 165000 },
-        { id: '6', name: 'TQM', duration_ms: 158000 }
-      ],
-      'Peso Pluma': [
-        { id: '7', name: 'Ella Baila Sola', duration_ms: 165000 },
-        { id: '8', name: 'LADY GAGA', duration_ms: 213000 }
-      ]
-    };
+    // 2. PETICIÓN REAL: Traemos los Top Tracks del artista (usando su ID)
+    // El market 'US' o 'MX' es para asegurar que las canciones estén disponibles aquí
+    const tracksUrl = `https://api.spotify.com/v1/artists/${artist.id}/top-tracks?market=MX`;
+    const tracksRes = await fetch(tracksUrl, { 
+      headers: { 'Authorization': `Bearer ${token}` } 
+    });
+    const tracksData = await tracksRes.json();
 
-    return { 
-      ...artist, 
-      topTracks: hits[artist.name] || [{ id: '9', name: 'Hit Popular', duration_ms: 180000 }] 
-    };
-  } catch (error) { return null; }
+    // Mapeamos solo lo que necesitamos para que tu App.jsx no truene
+    const topTracks = tracksData.tracks.slice(0, 10).map(track => ({
+      id: track.id,
+      name: track.name,
+      duration_ms: track.duration_ms,
+      popularity: track.popularity, // Dato extra por si lo quieres usar
+      preview_url: track.preview_url // ¡Incluso podrías poner un reproductor después!
+    }));
+
+    return { ...artist, topTracks };
+  } catch (error) {
+    console.error("Error en Spotify Real API:", error);
+    return null;
+  }
 };
