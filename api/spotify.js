@@ -1,24 +1,22 @@
-// This is a Vercel Serverless Function. It runs on the server
-// and can safely use your secret Spotify credentials.
-
+// api/spotify.js
 let cachedToken = null;
 let tokenExpiry = 0;
 
-const clientId = process.env.SPOTIFY_CLIENT_ID;
-const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+// 1. Usamos las variables EXACTAS que tienes en Vercel (con VITE_)
+const clientId = process.env.VITE_SPOTIFY_CLIENT_ID;
+const clientSecret = process.env.VITE_SPOTIFY_CLIENT_SECRET;
+const lastfmKey = process.env.LASTFM_API_KEY; 
 
 async function getToken() {
   const now = Date.now();
-  if (cachedToken && now < tokenExpiry - 60000) {
-    return cachedToken;
-  }
+  if (cachedToken && now < tokenExpiry - 60000) return cachedToken;
 
+  // 2. URL Oficial de Spotify
   const resp = await fetch('https://accounts.spotify.com/api/token', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization:
-        'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
+      Authorization: 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64'),
     },
     body: 'grant_type=client_credentials',
   });
@@ -36,57 +34,59 @@ export default async function handler(req, res) {
   try {
     const token = await getToken();
 
+    // 3. URL Oficial con el signo $ antes de las variables
     const search = await fetch(
       `https://api.spotify.com/v1/search?q=${encodeURIComponent(q)}&type=artist&limit=1`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
     const searchData = await search.json();
-    console.log('[api/spotify] searchData', searchData);
     const found = searchData.artists?.items?.[0];
-    if (!found) return res.status(404).end();
+    if (!found) return res.status(404).json({ error: 'Artista no encontrado' });
 
-    // get full artist details (includes follower count, genres, etc.)
-    const detailResp = await fetch(`https://api.spotify.com/v1/artists/${found.id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // URL de Last.fm (Correcta)
+    const lfmUrl = `https://ws.audioscrobbler.com/2.0/?method=artist.getinfo&artist=${encodeURIComponent(found.name)}&api_key=${lastfmKey}&format=json`;
+    
+    // 4. URL Oficial para los detalles del artista con $
+    const [detailResp, lfmRes] = await Promise.all([
+      fetch(`https://api.spotify.com/v1/artists/${found.id}`, { headers: { Authorization: `Bearer ${token}` } }),
+      fetch(lfmUrl)
+    ]);
+
     const artistDetails = await detailResp.json();
-    if (!detailResp.ok) {
-      console.warn('[api/spotify] artist detail fetch failed', detailResp.status, artistDetails);
-    }
+    const lfmData = await lfmRes.json();
 
-    // Spotify requires a market parameter; US is a safe default since MX caused
-    // 403 responses from some client‑credentials tokens when called directly.
-    const tracks = await fetch(
-      `https://api.spotify.com/v1/artists/${found.id}/top-tracks?market=US`,
+    const lfmStats = lfmData.artist?.stats || { listeners: "0", playcount: "0" };
+
+    // 5. URL Oficial para los Top Tracks con $ (usamos MX por tu región)
+    const tracksResp = await fetch(
+      `https://api.spotify.com/v1/artists/${found.id}/top-tracks?market=MX`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-    const tracksData = await tracks.json();
-    if (!tracks.ok) {
-      console.error('[api/spotify] top-tracks error', tracks.status, tracksData);
-    }
+    let tracksData = await tracksResp.json();
 
     if (!tracksData.tracks || tracksData.tracks.length === 0) {
-      // fallback a Last.fm en lugar de álbumes
-      const lastfmKey = process.env.LASTFM_API_KEY;
-      const lfmUrl = `https://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=${encodeURIComponent(found.name)}&api_key=${lastfmKey}&format=json&limit=10`;
-      const lfmRes = await fetch(lfmUrl);
-      const lfmData = await lfmRes.json();
-      tracksData.tracks = (lfmData.toptracks?.track || []).map(t => ({
-        id: t.url, // o algún hash
+      const lfmTracksUrl = `https://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=${encodeURIComponent(found.name)}&api_key=${lastfmKey}&format=json&limit=10`;
+      const lfmTracksRes = await fetch(lfmTracksUrl);
+      const lfmTracksData = await lfmTracksRes.json();
+      tracksData.tracks = (lfmTracksData.toptracks?.track || []).map(t => ({
+        id: t.url,
         name: t.name,
         playcount: t.playcount,
       }));
     }
 
-    // Asegurar que followers está presente
-    const responseArtist = {
-      ...artistDetails,
-      followers: artistDetails.followers || { total: 0 },
-    };
+    res.json({ 
+      artist: {
+        ...artistDetails,
+        listenersLastFM: lfmStats.listeners,
+        playcountLastFM: lfmStats.playcount,
+        followers: artistDetails.followers || { total: 0 }
+      }, 
+      topTracks: tracksData.tracks || [] 
+    });
 
-    res.json({ artist: responseArtist, topTracks: tracksData.tracks || [] });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'spotify error' });
+    res.status(500).json({ error: 'Error en el servidor' });
   }
 }

@@ -197,11 +197,16 @@ function App() {
               <div className="artist-banner" style={{ backgroundImage: `url(${artista.images[0]?.url})` }}>
                 <div className="banner-overlay">
                   <h1>{artista.name}</h1>
-                  <p className="followers">
-                    {artista.followers && artista.followers.total != null
-                      ? `${artista.followers.total.toLocaleString()} oyentes mensuales`
-                      : 'Oyentes desconocidos'}
-                  </p>
+                  <div className="artist-stats">
+                    <p className="followers">
+                      {artista.followers?.total?.toLocaleString()} seguidores en Spotify
+                    </p>
+                    {artista.listenersLastFM && (
+                      <p className="listeners-lfm" style={{ color: '#1db954', fontSize: '0.9rem', fontWeight: 'bold' }}>
+                        ● {parseInt(artista.listenersLastFM).toLocaleString()} oyentes mensuales (Last.fm)
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -214,7 +219,11 @@ function App() {
                       <button className="play-btn">▶</button>
                       <div className="track-info">
                         <span className="track-name">{track.name}</span>
-                        <span className="track-plays">{(Math.random() * 10).toFixed(1)}M reproducciones</span>
+                        <span className="track-plays">
+                          {track.playcount 
+                            ? `${parseInt(track.playcount).toLocaleString()} reproducciones` 
+                            : `Popularidad: ${track.popularity}%`}
+                        </span>
                       </div>
                     </div>
                   ))
