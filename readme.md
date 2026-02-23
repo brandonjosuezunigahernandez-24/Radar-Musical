@@ -52,6 +52,7 @@ Si deseas ejecutar este proyecto localmente, sigue estos pasos:
 
 ## 📸 Demo de la Interfaz
 La interfaz fue diseñada siguiendo principios de usabilidad, con un banner dinámico para el artista, una sección de mapas que se desplaza automáticamente al origen detectado y un carrusel de favoritos con persistencia real en base de datos.
+<img width="1910" height="1435" alt="image" src="https://github.com/user-attachments/assets/0d63bdd9-743f-4e6b-90e4-bec21909a0dd" />
 
 ---
 **Autor:** Brandon Josué Zúñiga Hernández  
