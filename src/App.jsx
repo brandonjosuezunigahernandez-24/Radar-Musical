@@ -57,12 +57,11 @@ function App() {
     traerFavoritos();
   }, [session]);
 
-  const manejarBusqueda = async (e) => {
-    e.preventDefault();
+  const performSearch = async (query) => {
     setErrorMsg(null);
+    setBusqueda(query);
 
-    // llamamos a nuestro servidor Vercel en lugar de Spotify directo
-    const resp = await fetch(`/api/spotify?q=${encodeURIComponent(busqueda)}`);
+    const resp = await fetch(`/api/spotify?q=${encodeURIComponent(query)}`);
     if (!resp.ok) {
       console.error('error proxy spotify', resp.status);
       setErrorMsg('No se pudo conectar con Spotify. Intenta más tarde.');
@@ -84,6 +83,11 @@ function App() {
       coords: locationData.coords,
       city: locationData.city,
     });
+  };
+
+  const manejarBusqueda = (e) => {
+    e.preventDefault();
+    performSearch(busqueda);
   }
 
   const guardarFavorito = async () => {
