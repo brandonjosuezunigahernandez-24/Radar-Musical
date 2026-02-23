@@ -250,7 +250,8 @@ function App() {
         )}
 
         {/* LISTA DE FAVORITOS */}
-        {favoritos && (
+        {/* LISTA DE FAVORITOS */}
+        {favoritos && favoritos.length > 0 && (
           <section className="favorites-carousel">
             <h3 className="favorites-title">ARTISTAS GUARDADOS RECIENTEMENTE</h3>
             <div className="carousel-grid">
@@ -259,15 +260,21 @@ function App() {
                   key={favorito.id}
                   className="fav-card"
                   onClick={() => performSearch(favorito.nombre)}
-                  style={{ cursor: 'pointer' }}
                 >
-                  <img src={favorito.imagen} alt={favorito.nombre} />
-                  <p className="fav-tag">♪ {favorito.genero || favorito.nombre}</p>
-                  <p className="fav-name">{favorito.nombre}</p>
+                  <img src={favorito.imagen} alt={favorito.nombre} className="fav-img" />
+                  
+                  {/* Capa de gradiente oscuro para que el texto resalte */}
+                  <div className="fav-overlay">
+                    <p className="fav-tag">♪ {favorito.genero || 'ARTISTA'}</p>
+                    <p className="fav-name">{favorito.nombre}</p>
+                  </div>
+
+                  {/* Botón de borrar (lo ocultaremos con CSS hasta pasar el mouse) */}
                   <button
                     className="del-btn"
+                    title="Eliminar de favoritos"
                     onClick={(ev) => {
-                      ev.stopPropagation();
+                      ev.stopPropagation(); // Evita que al dar clic en la X, se busque al artista
                       eliminarFavorito(favorito.id);
                     }}
                   >

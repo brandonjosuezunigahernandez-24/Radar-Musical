@@ -163,24 +163,122 @@
 .map-info-header h4 { margin: 8px 0; font-size: 1.1rem; }
 .map-info-header span { font-size: 0.85rem; color: #8a8d91; }
 
-/* --- FAVORITOS --- */
+/* --- FAVORITOS (Estilo Mockup) --- */
 .favorites-carousel {
-  padding-top: 40px; /* add space above title */
   padding: 20px 60px 60px;
   max-width: 1400px;
   margin: 0 auto;
+  width: 100%;
 }
 
 .favorites-title {
-  margin-left: 60px;
-  font-size: 1rem;
-  color: var(--text-main);
+  font-size: 0.85rem;
+  color: #65676b;
+  margin-bottom: 20px;
   letter-spacing: 1px;
-  margin-bottom: 10px;
+  text-transform: uppercase;
 }
 
-.fav-name { font-weight: bold; font-size: 0.95rem; margin: 0; }
+/* Contenedor del scroll horizontal */
+.carousel-grid {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 15px; /* Espacio para que la sombra no se corte */
+  scroll-behavior: smooth;
+}
 
+/* Barra de scroll moderna (estilo sutil) */
+.carousel-grid::-webkit-scrollbar { height: 8px; }
+.carousel-grid::-webkit-scrollbar-track { background: transparent; }
+.carousel-grid::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+.carousel-grid::-webkit-scrollbar-thumb:hover { background: #999; }
+
+/* Tarjeta estilo Mockup */
+.fav-card {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  background-color: #282828;
+}
+
+.fav-card:hover {
+  transform: scale(1.04);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+}
+
+.fav-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Gradiente oscuro sobre la imagen */
+.fav-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 40px 15px 15px;
+  background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.5) 50%, rgba(0,0,0,0) 100%);
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.fav-tag {
+  font-size: 0.7rem;
+  color: #b3b3b3;
+  margin: 0 0 4px 0;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.fav-name {
+  font-size: 1.1rem;
+  color: white;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Botón flotante para eliminar (Oculto hasta hacer hover) */
+.del-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0; /* Oculto por defecto */
+  transition: opacity 0.2s, background 0.2s;
+  z-index: 10;
+}
+
+.fav-card:hover .del-btn {
+  opacity: 1; /* Aparece al pasar el mouse */
+}
+
+.del-btn:hover {
+  background: #e91429; /* Rojo al pasar por encima de la X */
+}
+
+/* Clases extra que tenías y no hay que perder */
 .error {
   color: #c00;
   padding: 10px 60px;
@@ -191,29 +289,4 @@
   font-style: italic;
   color: #666;
   padding: 10px 0;
-}
-
-.carousel-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 20px;
-}
-
-.fav-card {
-  background: white;
-  padding: 12px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  position: relative;
-}
-
-.fav-card img { width: 100%; border-radius: 8px; aspect-ratio: 1/1; object-fit: cover; }
-.fav-tag { font-size: 0.65rem; font-weight: bold; color: #1a73e8; margin: 10px 0 5px; }
-.fav-card p { font-weight: bold; font-size: 0.95rem; margin: 0; }
-
-.del-btn {
-  position: absolute; top: 20px; right: 20px;
-  background: rgba(0,0,0,0.5); color: white;
-  border: none; border-radius: 50%; width: 24px; height: 24px;
-  cursor: pointer;
 }
