@@ -198,9 +198,6 @@ function App() {
                 <div className="banner-overlay">
                   <h1>{artista.name}</h1>
                   <div className="artist-stats">
-                    <p className="followers">
-                      {artista.followers?.total?.toLocaleString()} seguidores en Spotify
-                    </p>
                     {artista.listenersLastFM && (
                       <p className="listeners-lfm" style={{ color: '#1db954', fontSize: '0.9rem', fontWeight: 'bold' }}>
                         ● {parseInt(artista.listenersLastFM).toLocaleString()} oyentes mensuales (Last.fm)
