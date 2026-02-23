@@ -78,7 +78,13 @@ export default async function handler(req, res) {
       }));
     }
 
-    res.json({ artist: artistDetails, topTracks: tracksData.tracks || [] });
+    // Asegurar que followers está presente
+    const responseArtist = {
+      ...artistDetails,
+      followers: artistDetails.followers || { total: 0 },
+    };
+
+    res.json({ artist: responseArtist, topTracks: tracksData.tracks || [] });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'spotify error' });
