@@ -65,6 +65,19 @@ export default async function handler(req, res) {
       console.error('[api/spotify] top-tracks error', tracks.status, tracksData);
     }
 
+    if (!tracksData.tracks || tracksData.tracks.length === 0) {
+      // fallback a Last.fm en lugar de álbumes
+      const lastfmKey = process.env.LASTFM_API_KEY;
+      const lfmUrl = `https://ws.audioscrobbler.com/2.0/?method=artist.gettoptracks&artist=${encodeURIComponent(found.name)}&api_key=${lastfmKey}&format=json&limit=10`;
+      const lfmRes = await fetch(lfmUrl);
+      const lfmData = await lfmRes.json();
+      tracksData.tracks = (lfmData.toptracks?.track || []).map(t => ({
+        id: t.url, // o algún hash
+        name: t.name,
+        playcount: t.playcount,
+      }));
+    }
+
     res.json({ artist: artistDetails, topTracks: tracksData.tracks || [] });
   } catch (err) {
     console.error(err);
