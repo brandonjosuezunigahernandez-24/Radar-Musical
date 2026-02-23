@@ -234,7 +234,7 @@ function App() {
                    {artista.coords ? `Lat: ${artista.coords[0]?.toFixed(4)} • Lon: ${artista.coords[1]?.toFixed(4)}` : "Cargando coordenadas..."}
                  </span>
               </div>
-              <MapWidget lat={artista.coords[0]} lng={artista.coords[1]} />
+              <MapWidget coords={artista.coords} nombreArtista={artista.name} />
             </section>
           </>
         )}
@@ -245,11 +245,22 @@ function App() {
             <h3 className="favorites-title">ARTISTAS GUARDADOS RECIENTEMENTE</h3>
             <div className="carousel-grid">
               {favoritos.map((favorito) => (
-                <div key={favorito.id} className="fav-card">
+                <div
+                  key={favorito.id}
+                  className="fav-card"
+                  onClick={() => performSearch(favorito.nombre)}
+                  style={{ cursor: 'pointer' }}
+                >
                   <img src={favorito.imagen} alt={favorito.nombre} />
-                  <p className="fav-tag">{favorito.genero || favorito.nombre}</p>
+                  <p className="fav-tag">♪ {favorito.genero || favorito.nombre}</p>
                   <p className="fav-name">{favorito.nombre}</p>
-                  <button className="del-btn" onClick={() => eliminarFavorito(favorito.id)}>
+                  <button
+                    className="del-btn"
+                    onClick={(ev) => {
+                      ev.stopPropagation();
+                      eliminarFavorito(favorito.id);
+                    }}
+                  >
                     ×
                   </button>
                 </div>
